@@ -220,8 +220,9 @@ footer a{color:var(--violet-deep);font-weight:700;text-decoration:none}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===== 설정: Apps Script 웹앱 배포 주소를 여기에 붙여넣기 ===== */
-const API_URL = "https://script.google.com/macros/s/AKfycbxJA3AEpNBmBj7UtN7VmIzReCBrcO9yyNoALMDxQi_h61No_u3H6kZmUVdkikgK5ZGCGg/exec";
+/* ===== 설정: 수강신청 서버 (10-24부터 새 학원관리 서버). 되돌리려면 아래 옛 주소 줄을 살리고 새 주소 줄을 지우기 ===== */
+const API_URL = "https://ndivspksctjatkkvakja.supabase.co/functions/v1/apply";
+// 옛 주소: const API_URL = "https://script.google.com/macros/s/AKfycbxJA3AEpNBmBj7UtN7VmIzReCBrcO9yyNoALMDxQi_h61No_u3H6kZmUVdkikgK5ZGCGg/exec";
 
 /* 시트 '반목록' 탭을 못 읽을 때 쓰는 기본 반 목록 (시트가 우선) */
 const DEFAULT_CLASSES = [
