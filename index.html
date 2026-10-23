@@ -92,6 +92,19 @@ form{padding:18px 24px 32px}
 .agree .terms{margin-top:8px;font-size:12.5px;color:var(--sub);line-height:1.7}
 .agree .terms b{color:var(--ink)}
 
+/* 클리닉 신청 여부 (10-23) */
+.clinic-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.copt{position:relative;cursor:pointer}
+.copt input{position:absolute;opacity:0}
+.copt .card{border:1.5px solid var(--line);border-radius:14px;padding:14px 15px;background:#fff;transition:border-color .15s,background .15s}
+.copt .card b{display:block;font-size:15.5px}
+.copt .card span{display:block;margin-top:3px;font-size:12.5px;color:var(--sub);line-height:1.5}
+.copt input:checked + .card{border-color:var(--violet);background:#FBFAFF;box-shadow:0 4px 14px rgba(123,111,208,.16)}
+.copt input:focus-visible + .card{outline:3px solid var(--violet-line);outline-offset:2px}
+.clinic-note{margin-top:10px;font-size:13px;color:var(--sub);line-height:1.7}
+.sec.bad .clinic-opts .card{border-color:var(--danger)}
+@media (max-width:380px){ .clinic-opts{grid-template-columns:1fr} }
+
 .hp{position:absolute;left:-9999px;height:0;overflow:hidden}
 
 .submit{margin-top:26px;width:100%;font:inherit;font-size:17px;font-weight:800;color:#fff;border:0;border-radius:14px;
@@ -155,8 +168,18 @@ footer a{color:var(--violet-deep);font-weight:700;text-decoration:none}
         <div class="err">수강하실 반을 선택해 주세요.</div>
       </div>
 
+      <div class="sec" id="clinicSec">
+        <div class="sec-h"><span class="n">2</span>클리닉 신청<span class="req">*</span></div>
+        <div class="clinic-opts">
+          <label class="copt"><input type="radio" name="clinic" value="신청"><div class="card"><b>클리닉 신청</b><span>수업 외 시간에 과제 확인·재시험·보충 지도</span></div></label>
+          <label class="copt"><input type="radio" name="clinic" value="안 함"><div class="card"><b>클리닉 안 함</b><span>시간이 어려우면 상담 후 생략할 수 있어요</span></div></label>
+        </div>
+        <p class="clinic-note">온라인 전용반은 수업 영상·자료·온라인 시험으로 공부해요. 클리닉은 상담하면서 함께 정해도 괜찮아요.</p>
+        <div class="err">클리닉 신청 여부를 골라 주세요.</div>
+      </div>
+
       <div class="sec">
-        <div class="sec-h"><span class="n">2</span>신청자 정보</div>
+        <div class="sec-h"><span class="n">3</span>신청자 정보</div>
         <div class="field" id="f-name">
           <label for="name">학생 이름<span class="req">*</span></label>
           <input id="name" name="name" autocomplete="name" placeholder="예) 홍길동" maxlength="20">
@@ -175,13 +198,13 @@ footer a{color:var(--violet-deep);font-weight:700;text-decoration:none}
       </div>
 
       <div class="sec">
-        <div class="sec-h"><span class="n">3</span>개인정보 수집·이용 동의</div>
+        <div class="sec-h"><span class="n">4</span>개인정보 수집·이용 동의</div>
         <div class="agree" id="agreeBox">
           <label class="agree-row"><input type="checkbox" id="agree"> 개인정보 수집·이용에 동의합니다 <span class="req">(필수)</span></label>
           <details>
             <summary>내용 보기</summary>
             <div class="terms">
-              <b>수집 항목</b> 학생 이름, 학부모 연락처, 학생 연락처, 신청 반<br>
+              <b>수집 항목</b> 학생 이름, 학부모 연락처, 학생 연락처, 신청 반, 클리닉 신청 여부<br>
               <b>이용 목적</b> 수강 상담 및 안내 연락, 수강 등록 처리<br>
               <b>보유 기간</b> 상담 종료 후 1년 (수강 등록 시 수강 기간 동안)<br>
               동의를 거부하실 수 있으나, 이 경우 온라인 수강신청이 어렵습니다. 전화(02-525-8584)로도 신청하실 수 있습니다.
@@ -283,11 +306,13 @@ function mark(el,bad){el.classList.toggle("bad",bad);return !bad}
 $("#applyForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const cls=document.querySelector('input[name="cls"]:checked');
+  const clinic=document.querySelector('input[name="clinic"]:checked');
   const name=$("#name").value.trim();
   const parentPhone=$("#parentPhone").value.trim();
   const studentPhone=$("#studentPhone").value.trim();
   const ok=[
     mark($("#classSec"),!cls),
+    mark($("#clinicSec"),!clinic),
     mark($("#f-name"),!name),
     mark($("#f-parent"),!validPhone(parentPhone)),
     mark($("#f-student"),!validPhone(studentPhone)),
@@ -296,7 +321,7 @@ $("#applyForm").addEventListener("submit",async e=>{
   if(!ok){ const f=document.querySelector(".bad"); f&&f.scrollIntoView({behavior:"smooth",block:"center"}); toast("빠진 항목을 확인해 주세요."); return; }
 
   const btn=$("#submitBtn"); btn.disabled=true; btn.textContent="접수 중입니다…";
-  const payload={cls:cls.value,name,parentPhone,studentPhone,agree:true,website:$("#website").value};
+  const payload={cls:cls.value,clinic:clinic.value,name,parentPhone,studentPhone,agree:true,website:$("#website").value};
   try{
     if(!apiReady) throw new Error("API 주소가 아직 설정되지 않았습니다.");
     const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
@@ -313,6 +338,7 @@ $("#applyForm").addEventListener("submit",async e=>{
 function showDone(p){
   $("#doneSummary").innerHTML=`
     <div><span>신청 반</span><b>${esc(p.cls)}</b></div>
+    <div><span>클리닉</span><b>${p.clinic==="안 함"?"안 함 (상담 후 결정)":"신청"}</b></div>
     <div><span>학생 이름</span><b>${esc(p.name)}</b></div>
     <div><span>학부모님 연락처</span><b>${esc(p.parentPhone)}</b></div>`;
   $("#formView").style.display="none";
