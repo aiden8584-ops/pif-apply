@@ -410,6 +410,17 @@ function showDone(p){
 }
 
 loadClasses();
+// 고른 반·클리닉을 한 번 더 누르면 선택 해제 (10-26 원장 요청). 라디오는 원래 다시 눌러도 안 풀려서, 누르기 직전에 이미 골라져 있었는지 기억했다가 풀어 줌
+let wasOn=null;
+document.addEventListener("pointerdown",e=>{
+  const r=e.target.closest("label")?.querySelector('input[type="radio"]');
+  wasOn=r&&(r.name==="cls"||r.name==="clinic")&&r.checked?r:null;
+},true);
+document.addEventListener("click",e=>{
+  const r=e.target.closest('input[type="radio"]');
+  if(r&&r===wasOn){r.checked=false;r.blur();}
+  if(e.target.closest("label"))setTimeout(()=>{wasOn=null},0);
+},true);
 </script>
 </body>
 </html>
